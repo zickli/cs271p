@@ -2,43 +2,15 @@ import multiprocessing
 import os
 import unittest
 import time
+from common import *
 from bnb_dfs import BranchAndBoundDfs
 
 
 class TestTspSolving(unittest.TestCase):
-    @staticmethod
-    def get_benchmark():
-        data_path = os.path.join(os.path.dirname(__file__), 'data', 'benchmark')
-        # list all file from data_path
-        filepaths = []
-        for filename in os.listdir(data_path):
-            filepaths.append(os.path.join(data_path, filename))
-
-        return filepaths
-
-    @staticmethod
-    def get_small_benchmark():
-        data_path = os.path.join(os.path.dirname(__file__), 'data', 'small_benchmark')
-        # list all file from data_path
-        filepaths = []
-        for filename in os.listdir(data_path):
-            filepaths.append(os.path.join(data_path, filename))
-
-        return filepaths
-
-    @staticmethod
-    def read_graph(filepath):
-        graph = []
-        with open(filepath, 'r') as file:
-            size = int(file.readline().strip())
-            for _ in range(size):
-                row = list(map(float, file.readline().split()))
-                graph.append(row)
-        return graph
 
     @staticmethod
     def time_bnb_dfs(filepath):
-        g = TestTspSolving.read_graph(filepath)
+        g = read_graph(filepath)
         solution = BranchAndBoundDfs(g)
 
         start_time = time.perf_counter()
@@ -72,7 +44,7 @@ class TestTspSolving(unittest.TestCase):
         return result
 
     def test_benchmark_bnb_dfs(self):
-        filepaths = TestTspSolving.get_small_benchmark()
+        filepaths = get_small_benchmark()
 
         with multiprocessing.Pool(processes=3) as pool:
             results = pool.map(TestTspSolving.worker, filepaths)

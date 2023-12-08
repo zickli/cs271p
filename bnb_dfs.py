@@ -1,5 +1,4 @@
 import heapq
-import time
 from collections import OrderedDict
 
 
@@ -82,7 +81,7 @@ class BranchAndBoundDfs:
     def estimate_cost(self, path: Path):
         return path.cost + self.minimum_spanning_tree(path)
 
-    def solve(self, path: Path, domain: set):
+    def search(self, path: Path, domain: set):
         self.stat += 1
         if len(path) == self.n:
             path.append(path[0])
@@ -106,29 +105,9 @@ class BranchAndBoundDfs:
 
             new_domain = domain.copy()
             new_domain.remove(new_path[-1])
-            self.solve(new_path, new_domain)
+            self.search(new_path, new_domain)
 
-
-def read_graph(file_path):
-    graph = []
-    with open(file_path, 'r') as file:
-        size = int(file.readline().strip())
-        for _ in range(size):
-            row = list(map(float, file.readline().split()))
-            graph.append(row)
-    return graph
-
-
-if __name__ == '__main__':
-    g = read_graph("10_0.0_1.0.out")
-    solution = BranchAndBoundDfs(g)
-
-    start_time = time.perf_counter()
-
-    solution.solve(Path([], graph=g), {x for x in range(0, len(g))})
-
-    end_time = time.perf_counter()
-    execution_time = round(end_time - start_time, 6)
-
-    print(solution.best_path)
-    print(f"Execution time: {execution_time} seconds, {solution.stat} rounds")
+    def solve(self):
+        self.search(Path([], graph=self.g),
+                    {x for x in range(0, len(self.g))})
+        return self.best_path

@@ -24,13 +24,13 @@ class BranchAndBoundDfs:
         self.g = graph
         self.n = len(graph)
         self.best_path = Path([], cost=float('inf'))
-        self.stat = 0
-        self.cache = LRUCache(capacity=4096)
+        self.visited_node = 0
+        self.mst_cache = LRUCache(capacity=4096)
 
     def minimum_spanning_tree(self, path: Path):
         start_node = path[0]
         path = tuple(sorted(path))
-        cached = self.cache.get(path)
+        cached = self.mst_cache.get(path)
         if cached is not None:
             return cached
 
@@ -55,14 +55,14 @@ class BranchAndBoundDfs:
                     if next_to not in visited:
                         heapq.heappush(edges, (next_weight, to, next_to))
 
-        self.cache.put(path, mst_cost)
+        self.mst_cache.put(path, mst_cost)
         return mst_cost
 
     def estimate_cost(self, path: Path):
         return path.cost + self.minimum_spanning_tree(path)
 
     def search(self, path: Path, domain: set):
-        self.stat += 1
+        self.visited_node += 1
         if len(path) == self.n:
             path.append(path[0])
             path.cost += self.g[path[-1]][path[0]]

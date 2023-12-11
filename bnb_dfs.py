@@ -2,21 +2,33 @@ import heapq
 from common import LRUCache
 
 
-class Path(list):
-    def __init__(self, *args, cost=0.0, graph=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        if graph is None:
-            graph = [[]]
+class Path:
+    def __init__(self, content: [], cost=0.0, graph=None):
+        assert isinstance(content, list)
+        self.content = content
         self.g = graph
         self.cost = cost
 
     def append(self, v):
         if len(self) > 0:
-            self.cost += self.g[self[-1]][v]
-        super().append(v)
+            u = self.content[-1]
+            self.cost += self.g[u][v]
+        self.content.append(v)
 
     def copy(self) -> 'Path':
-        return Path(self, cost=self.cost, graph=self.g)
+        return Path(self.content.copy(), cost=self.cost, graph=self.g)
+
+    def __add__(self, other: 'Path') -> 'Path':
+        return Path(self.content + other.content, cost=self.cost + other.cost)
+
+    def __len__(self):
+        return len(self.content)
+
+    def __getitem__(self, item):
+        return self.content[item]
+
+    def __str__(self):
+        return f'{str(self.content)} -> {self.cost}'
 
 
 class BranchAndBoundDfs:
@@ -25,11 +37,12 @@ class BranchAndBoundDfs:
         self.n = len(graph)
         self.best_path = Path([], cost=float('inf'))
         self.visited_node = 0
-        self.mst_cache = LRUCache(capacity=4096)
+        self.mst_cache = LRUCache(capacity=409600)
+        self.node_cache = LRUCache(capacity=4096)
 
     def minimum_spanning_tree(self, path: Path):
         start_node = path[0]
-        path = tuple(sorted(path))
+        path = tuple(sorted(path.content))
         cached = self.mst_cache.get(path)
         if cached is not None:
             return cached
@@ -65,7 +78,6 @@ class BranchAndBoundDfs:
         self.visited_node += 1
         if len(path) == self.n:
             path.append(path[0])
-            path.cost += self.g[path[-1]][path[0]]
             if path.cost < self.best_path.cost:
                 self.best_path = path
             return
@@ -88,6 +100,6 @@ class BranchAndBoundDfs:
             self.search(new_path, new_domain)
 
     def solve(self):
-        self.search(Path([], graph=self.g),
-                    {x for x in range(0, len(self.g))})
+        self.search(Path([0], graph=self.g),
+                    {x for x in range(1, len(self.g))})
         return self.best_path

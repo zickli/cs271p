@@ -7,7 +7,8 @@ def get_benchmark():
     # list all file from data_path
     filepaths = []
     for filename in os.listdir(data_path):
-        filepaths.append(os.path.join(data_path, filename))
+        if filename.endswith('.out'):
+            filepaths.append(os.path.join(data_path, filename))
 
     return filepaths
 
@@ -17,9 +18,25 @@ def get_small_benchmark():
     # list all file from data_path
     filepaths = []
     for filename in os.listdir(data_path):
-        filepaths.append(os.path.join(data_path, filename))
+        if filename.endswith('.out'):
+            filepaths.append(os.path.join(data_path, filename))
 
     return filepaths
+
+
+def get_competition_benchmark():
+    data_path = os.path.join(os.path.dirname(__file__), 'data', 'Competion')
+    # list all file from data_path
+    filepaths = []
+    for filename in os.listdir(data_path):
+        if filename.startswith('tsp-problem') and filename.endswith('.txt'):
+            a, b, c, d = map(int, filename.split('-')[2: -1])
+            filepaths.append((a, b, c, d, os.path.join(data_path, filename)))
+
+    filepaths.sort()
+    sorted_paths = [t[-1] for t in filepaths]
+    print(sorted_paths)
+    return sorted_paths
 
 
 def read_graph(filepath):
